@@ -10,6 +10,7 @@ export function createAsyncCancelable (generatorFunction) {
     }
 
     const promise = new Promise((resolve, reject) => {
+      // All cancelling logic held here instead of in the client
       async function nextStep (prevResult) {
         if (cancelRequested) {
           return reject(new CancelError())
@@ -20,7 +21,8 @@ export function createAsyncCancelable (generatorFunction) {
         }
 
         try {
-          nextStep(generatorObject.next(await prevResult.value))
+          const prevVal = await prevResult.value
+          nextStep(generatorObject.next(prevVal))
         } catch (err) {
           try {
             nextStep(generatorObject.throw(err))
